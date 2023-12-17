@@ -1,7 +1,3 @@
-const PostsController = {
-  hello: async (req, res) => {
-    res.status(200).send("Welcomee!!");
-  }
-}
+const PostsController = {};
 
 export default PostsController;

@@ -1,16 +1,14 @@
-import UsersController from '../controllers/UsersController.js';
+import AuthController from '../controllers/AuthController.js';
 import PostsController from '../controllers/PostsContoller.js';
 import auth from '../middlewares/auth.js';
 import { Router } from 'express';
 
 const router = Router();
 
-router.post('/register', UsersController.register);
+router.post('/auth/register', AuthController.register);
 
-router.post('/login', UsersController.login);
+router.post('/auth/login', AuthController.login);
 
-router.get('/users', UsersController.getUsers);
-
-router.get('/hello', auth, PostsController.hello);
+router.get('/auth/refresh', AuthController.refresh);
 
 export default router;

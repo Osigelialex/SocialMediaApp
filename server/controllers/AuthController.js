@@ -98,7 +98,10 @@ const AuthController = {
           user: {
             id: user._id,
             username: user.username,
+            displayname: user.displayname,
             email,
+            bio: user.bio,
+            location: user.location
           },
         });
     } catch (error) {

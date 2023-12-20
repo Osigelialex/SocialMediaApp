@@ -1,6 +1,4 @@
 import AuthController from '../controllers/AuthController.js';
-import PostsController from '../controllers/PostsContoller.js';
-import auth from '../middlewares/auth.js';
 import { Router } from 'express';
 
 const router = Router();

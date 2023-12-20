@@ -11,10 +11,9 @@ const verifyToken = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(accessToken, config.TOKEN_KEY);
-    req.user = decoded.user;
+    req.user = decoded.user_id;
     next();
   } catch (error) {
-    console.log(error);
     if (!refreshToken) {
       return res.status(400).json({ error: "No refresh Token provided" });
     }
@@ -26,7 +25,7 @@ const verifyToken = (req, res, next) => {
         config.TOKEN_KEY,
         { expiresIn: "2h" }
       );
-
+      req.user = decoded.user_id;
       res.header("x-auth-token", accessToken);
       next();
     } catch (error) {

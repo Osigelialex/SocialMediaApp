@@ -1,5 +1,4 @@
-import { Post, Like, Comment } from "../models/posts.js";
-import User from "../models/user.js";
+import { Post } from "../models/posts.js";
 
 const PostController = {
   createPost: async (req, res) => {
@@ -80,77 +79,6 @@ const PostController = {
         .json({ status: "success", message: "post deleted", post });
     } catch (error) {
       res.status(500).json({ error: "could not delete post" });
-    }
-  },
-  likePost: async (req, res) => {
-    const { userId, postId } = req.params;
-
-    try {
-      const user = await User.findById(userId);
-      const post = await Post.findById(postId);
-      if (!user) {
-        return res.status(404).json({ error: "user not found" });
-      }
-      if (!post) {
-        return res.status(404).json({ error: "post not found" });
-      }
-
-      // check if user already liked the post
-      const userLike = await Like.find({ post: post._id, user: user._id });
-      if (userLike.length > 0) {
-        return res.status(403).json({ error: "user already liked post" });
-      }
-
-      await Like.create({
-        post: postId,
-        user: userId,
-      });
-    } catch (error) {
-      return res.status(500).json({ error: "could not like post" });
-    }
-
-    res.status(200).json({ status: "success", message: "post liked" });
-  },
-  getPostLikes: async (req, res) => {
-    const { postId } = req.params;
-
-    try {
-      const likes = await Like.find({ post: postId }).populate({
-        path: "post user",
-        select: "-password -__v",
-      });
-      if (!likes) {
-        return res.status(404).json({ message: "post has not likes" });
-      }
-      res.status(200).json({ status: "success", likes });
-    } catch (error) {
-      console.log(error);
-      return res.status(500).json({ error: "could not fetch likes for post" });
-    }
-  },
-  unlikePost: async (req, res) => {
-    const { postId, userId } = req.params;
-
-    try {
-      const user = await User.findById(userId);
-      const post = await Post.findById(postId);
-      if (!user) {
-        return res.status(404).json({ error: "user not found" });
-      }
-      if (!post) {
-        return res.status(404).json({ error: "post not found" });
-      }
-      // check if user does not like post already
-      const userLike = await Like.findOne({ post: post._id, user: user._id });
-      if (!userLike) {
-        return res.status(403).json({ error: "user does not like post" });
-      }
-
-      // delete users like
-      await Like.findOneAndDelete({ post: post._id, user: user._id });
-      res.status(200).json({ status: "success", message: "post unliked" });
-    } catch (error) {
-      return res.status(500).json({ error: "could not unlike post" });
     }
   },
 };

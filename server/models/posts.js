@@ -3,7 +3,9 @@ import mongoose from 'mongoose';
 // Define the schema for the posts
 const postSchema = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-  content: String,
+  content: { type: String, required: true },
+  likes: { type: Number, default: 0 },
+  comments: { type: Number, default: 0 }
 }, { timestamps: true });
 
 // Define the schema for the likes
@@ -16,7 +18,7 @@ const likeSchema = new mongoose.Schema({
 const commentSchema = new mongoose.Schema({
   post: { type: mongoose.Schema.Types.ObjectId, ref: 'Post' },
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-  content: String
+  content: { type: String, required: true }
 }, { timestamps: true });
 
 // Create the models for posts, likes, and comments

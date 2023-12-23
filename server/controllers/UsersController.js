@@ -10,7 +10,7 @@ const UserController = {
       }
       res.status(200).json({ status: "success", users });
     } catch (error) {
-      res.status(500).json({ error: "internal server error" });
+      res.status(500).json({ error: "error retrieving users" });
     }
   },
   getUser: async (req, res) => {
@@ -23,7 +23,7 @@ const UserController = {
       }
       res.status(200).json({ status: "success", user });
     } catch (error) {
-      res.status(500).json({ error: "internal server error" });
+      res.status(500).json({ error: "could not fetch user details" });
     }
   },
   updateUser: async (req, res) => {
@@ -58,7 +58,7 @@ const UserController = {
         },
       });
     } catch (error) {
-      res.status(500).json({ error: "internal server error" });
+      res.status(500).json({ error: "could not update user" });
     }
   },
   createUser: async (req, res) => {
@@ -125,7 +125,32 @@ const UserController = {
         },
       });
     } catch (error) {
-      res.status(500).json({ error: "internal server error" });
+      res.status(500).json({ error: "could not delelte user" });
+    }
+  },
+  searchUser: async (req, res) => {
+    try {
+      const { searchQuery } = req.query;
+
+      const [userFromDisplayname, userFromUsername] = await Promise.all([
+        User.findOne({ displayname: searchQuery }).select('-password -__v'),
+        User.findOne({ username: searchQuery }).select('-password -__v')
+      ]);
+
+      if (!(userFromDisplayname || userFromUsername)) {
+        return res.status(404).json({ message: "user not found" });
+      }
+
+      if (userFromDisplayname) {
+        return res.status(200).json({ status: "success", user: userFromDisplayname });
+      }
+
+      if (userFromUsername) {
+        return res.status(200).json({ status: "success", user: userFromUsername });
+      }
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({ error: "error searching for user" });
     }
   },
   getMe: async (req, res) => {
@@ -137,7 +162,7 @@ const UserController = {
       res.status(200).json({ status: "success", user });
     } catch (error) {
       console.log(error);
-      res.status(500).json({ error: "internal server error" });
+      res.status(500).json({ error: "error recieving user information" });
     }
   },
 };

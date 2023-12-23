@@ -14,6 +14,8 @@ router.post('/users', auth, UserController.createUser);
 
 router.delete('/users/:id', auth, UserController.deleteUser);
 
+router.get('/user/search', auth, UserController.searchUser);
+
 router.get('/me', auth, UserController.getMe);
 
 export default router;

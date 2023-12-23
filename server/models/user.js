@@ -7,6 +7,8 @@ const userSchema = new mongoose.Schema({
   password: { type: String },
   bio: { type: String, default: null },
   location: { type: String, default: null },
+  followers: { type: Number, default: 0 },
+  following: { type: Number, default: 0 }
 }, {timestamps: true});
 
 export default model("User", userSchema);

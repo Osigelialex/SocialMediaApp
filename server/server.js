@@ -2,8 +2,6 @@ import express, { json, urlencoded } from "express";
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import postRoutes from "./routes/postRoutes.js";
-import likeRoutes from "./routes/likeRoutes.js";
-import commentRoutes from "./routes/commentRoutes.js";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 import cookieParser from "cookie-parser";
@@ -23,8 +21,6 @@ app.use(urlencoded({ extended: true }));
 app.use("/api/v1", authRoutes);
 app.use("/api/v1", userRoutes);
 app.use("/api/v1", postRoutes);
-app.use("/api/v1", likeRoutes);
-app.use("/api/v1", commentRoutes);
 
 app.listen(port, () => console.log(`server listening on ${port}`));
 

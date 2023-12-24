@@ -54,6 +54,7 @@ const AuthController = {
       return res.status(500).json({ error: "internal server error" });
     }
   },
+
   login: async (req, res) => {
     try {
       const { email, password } = req.body;
@@ -109,6 +110,7 @@ const AuthController = {
       res.status(500).json({ error: "internal server error" });
     }
   },
+
   refresh: (req, res) => {
     // check for refresh token in cookies
     const refreshToken = req.cookies.refreshtoken;

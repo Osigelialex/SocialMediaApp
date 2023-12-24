@@ -18,6 +18,7 @@ const PostController = {
       res.status(500).json({ error: "could not create post" });
     }
   },
+
   getAllPosts: async (req, res) => {
     try {
       const posts = await Post.find().populate("user", "-password -__v");
@@ -27,6 +28,7 @@ const PostController = {
       res.status(500).json({ error: "could not retrieve all posts" });
     }
   },
+
   getPost: async (req, res) => {
     try {
       const { id } = req.params;
@@ -39,6 +41,7 @@ const PostController = {
       res.status(500).json({ error: "could not get post" });
     }
   },
+
   updatePosts: async (req, res) => {
     try {
       const { id } = req.params;
@@ -62,6 +65,7 @@ const PostController = {
       res.status(500).json({ error: "could not update post" });
     }
   },
+
   deletePost: async (req, res) => {
     try {
       const { id } = req.params;

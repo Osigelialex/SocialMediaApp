@@ -1,9 +1,8 @@
-import { Post, Like } from '../models/posts.js';
-
+import { Post, Like } from "../models/posts.js";
 
 const LikeController = {
   likePost: async (req, res) => {
-    const { postId } = req.params;
+    const postId = req.params.id;
     const userId = req.user;
 
     try {
@@ -31,8 +30,9 @@ const LikeController = {
       return res.status(500).json({ error: "could not like post" });
     }
   },
+
   getPostLikes: async (req, res) => {
-    const { postId } = req.params;
+    const postId = req.params.id;
 
     try {
       const likes = await Like.find({ post: postId }).populate({
@@ -48,8 +48,9 @@ const LikeController = {
       return res.status(500).json({ error: "could not fetch likes for post" });
     }
   },
+
   unlikePost: async (req, res) => {
-    const { postId } = req.params;
+    const postId = req.params.id;
     const userId = req.user;
 
     try {
@@ -59,7 +60,10 @@ const LikeController = {
       }
 
       // check if user does not like post
-      const userLike = await Like.findOneAndDelete({ post: post._id, user: userId });
+      const userLike = await Like.findOneAndDelete({
+        post: post._id,
+        user: userId,
+      });
 
       if (!userLike) {
         return res.status(403).json({ error: "user does not like post" });
@@ -72,7 +76,7 @@ const LikeController = {
     } catch (error) {
       return res.status(500).json({ error: "could not unlike post" });
     }
-  }
+  },
 };
 
 export default LikeController;

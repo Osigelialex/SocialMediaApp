@@ -13,6 +13,7 @@ const UserController = {
       res.status(500).json({ error: "error retrieving users" });
     }
   },
+
   getUser: async (req, res) => {
     try {
       const { id } = req.params;
@@ -26,6 +27,7 @@ const UserController = {
       res.status(500).json({ error: "could not fetch user details" });
     }
   },
+
   updateUser: async (req, res) => {
     try {
       const { id } = req.params;
@@ -61,6 +63,7 @@ const UserController = {
       res.status(500).json({ error: "could not update user" });
     }
   },
+
   createUser: async (req, res) => {
     try {
       const { username, email, password } = req.body;
@@ -108,6 +111,7 @@ const UserController = {
       res.status(500).json({ error: "internal server error" });
     }
   },
+
   deleteUser: async (req, res) => {
     const { id } = req.params;
     try {
@@ -128,13 +132,14 @@ const UserController = {
       res.status(500).json({ error: "could not delelte user" });
     }
   },
+
   searchUser: async (req, res) => {
     try {
-      const { searchQuery } = req.query;
+      const { query } = req.query;
 
       const [userFromDisplayname, userFromUsername] = await Promise.all([
-        User.findOne({ displayname: searchQuery }).select('-password -__v'),
-        User.findOne({ username: searchQuery }).select('-password -__v')
+        User.findOne({ displayname: query }).select("-password -__v"),
+        User.findOne({ username: query }).select("-password -__v"),
       ]);
 
       if (!(userFromDisplayname || userFromUsername)) {
@@ -142,17 +147,22 @@ const UserController = {
       }
 
       if (userFromDisplayname) {
-        return res.status(200).json({ status: "success", user: userFromDisplayname });
+        return res
+          .status(200)
+          .json({ status: "success", user: userFromDisplayname });
       }
 
       if (userFromUsername) {
-        return res.status(200).json({ status: "success", user: userFromUsername });
+        return res
+          .status(200)
+          .json({ status: "success", user: userFromUsername });
       }
     } catch (error) {
       console.log(error);
       return res.status(500).json({ error: "error searching for user" });
     }
   },
+
   getMe: async (req, res) => {
     try {
       const user = await User.findById(req.user).select("-password -__v");

@@ -18,12 +18,13 @@ const LikeController = {
       }
 
       post.likes += 1;
-      await post.save();
-
-      await Like.create({
-        post: postId,
-        user: userId,
-      });
+      await Promise.all([
+        post.save(),
+        Like.create({
+          post: postId,
+          user: userId
+        })
+      ]);
 
       res.status(200).json({ status: "success", message: "post liked", post });
     } catch (error) {

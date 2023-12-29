@@ -1,6 +1,7 @@
 import User from "../models/user.js";
 import bcrypt from "bcryptjs";
 
+
 const UserController = {
   getUsers: async (req, res) => {
     try {
@@ -31,6 +32,9 @@ const UserController = {
   updateUser: async (req, res) => {
     try {
       const { id } = req.params;
+      const avatar = req.file.filename;
+      console.log(avatar);
+
       // prevent user from updating username
       if (req.body.username) {
         return res.status(400).json({ error: "username cannot be updated" });
@@ -41,6 +45,7 @@ const UserController = {
         return res.status(400).json({ error: "password cannot be updated" });
       }
 
+      req.body.avatar = avatar;
       const user = await User.findByIdAndUpdate(id, req.body, { new: true });
 
       if (!user) {
@@ -57,6 +62,7 @@ const UserController = {
           email: user.email,
           bio: user.bio,
           location: user.location,
+          avatar: `http://localhost:5000/uploads/${user.avatar}`
         },
       });
     } catch (error) {
@@ -157,6 +163,7 @@ const UserController = {
           .status(200)
           .json({ status: "success", user: userFromUsername });
       }
+
     } catch (error) {
       console.log(error);
       return res.status(500).json({ error: "error searching for user" });

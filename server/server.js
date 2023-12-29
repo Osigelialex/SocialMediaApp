@@ -18,6 +18,7 @@ app.use(cors());
 app.use(json());
 app.use(cookieParser());
 app.use(urlencoded({ extended: true }));
+app.use('/uploads', express.static('Images'));
 app.use("/api/v1", authRoutes);
 app.use("/api/v1", userRoutes);
 app.use("/api/v1", postRoutes);

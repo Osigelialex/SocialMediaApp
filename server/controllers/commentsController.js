@@ -14,19 +14,21 @@ const commentController = {
         return res.status(409).json({ error: "comment content is required" });
       }
 
-      const comment = await Comment.create({
-        post: postId,
-        user: req.user,
-        content,
-      });
-
       post.comments += 1;
-      await post.save();
+      const [newPost, comment] = await Promise.all([
+        post.save(),
+        Comment.create({
+          post: postId,
+          user: req.user,
+          content
+        })
+      ]);
 
       res
         .status(200)
         .json({ status: "success", message: "comment created", comment });
     } catch (error) {
+      console.log(error);
       return res.status(500).json({ error: "could not create comment" });
     }
   },
@@ -71,10 +73,11 @@ const commentController = {
       }
 
       post.comments -= 1;
-      await comment.save();
+      await Promise.all([
+        post.save(),
+        Comment.findByIdAndDelete(commentId)
+      ]);
 
-      // check if post exists then delete
-      await Comment.findByIdAndDelete(commentId);
       res
         .status(200)
         .json({ status: "success", message: "comment deleted" });

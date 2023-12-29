@@ -1,6 +1,7 @@
 import UserController from '../controllers/UsersController.js';
 import FollowerController from '../controllers/FollowerController.js';
 import auth from '../middlewares/auth.js';
+import upload from '../middlewares/imageUpload.js';
 import { Router } from 'express';
 
 const router = Router();
@@ -14,7 +15,7 @@ router.get('/users/search', auth, UserController.searchUser);
 
 // Routes for a single user
 router.get('/users/:id', auth, UserController.getUser);
-router.put('/users/:id', auth, UserController.updateUser);
+router.put('/users/:id', auth, upload.single('avatar'), UserController.updateUser);
 router.delete('/users/:id', auth, UserController.deleteUser);
 
 // Routes for the authenticated user

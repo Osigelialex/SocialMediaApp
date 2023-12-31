@@ -36,6 +36,7 @@ const commentController = {
   getComments: async (req, res) => {
     try {
       const postId = req.params.id;
+      console.log(postId);
       const post = await Post.findById(postId);
       if (!post) {
         return res.status(404).json({ error: "could not find post" });
@@ -51,6 +52,7 @@ const commentController = {
 
       res.status(200).json({ status: "success", comments });
     } catch (error) {
+      console.log(error);
       return res.status(500).json({ error: "could not fetch comments" });
     }
   },

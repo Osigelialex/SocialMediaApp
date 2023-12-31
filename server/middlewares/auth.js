@@ -23,7 +23,7 @@ const verifyToken = (req, res, next) => {
       const accessToken = jwt.sign(
         { encodedUser: decoded.encodedUser },
         config.TOKEN_KEY,
-        { expiresIn: "2h" }
+        { expiresIn: 120 }
       );
       req.user = decoded.user_id;
       res.header("x-auth-token", accessToken);

@@ -79,7 +79,7 @@ const AuthController = {
 
       // generate tokens for user
       const accessToken = jwt.sign(encodedUser, config.TOKEN_KEY, {
-        expiresIn: "2h",
+        expiresIn: 120,
       });
       const refreshToken = jwt.sign(encodedUser, config.TOKEN_KEY, {
         expiresIn: "5d",
@@ -126,7 +126,7 @@ const AuthController = {
       const accessToken = jwt.sign(
         { encodedUser: decoded.encodedUser },
         config.TOKEN_KEY,
-        { expiresIn: "2h" }
+        { expiresIn: 120 }
       );
 
       const user = decoded.encodedUser;
@@ -141,6 +141,12 @@ const AuthController = {
       res.status(400).json({ error: "Invalid refresh Token" });
     }
   },
+
+  logout: (req, res) => {
+    res.clearCookie("refreshtoken");
+    res.removeHeader("x-auth-token");
+    res.status(200).json({ message: "logged out successfully " });
+  }
 };
 
 export default AuthController;

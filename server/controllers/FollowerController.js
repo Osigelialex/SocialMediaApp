@@ -51,7 +51,7 @@ const FollowerController = {
       const userId = req.params.id;
       const [user, currentUser] = await Promise.all([
         User.findById(userId),
-        User.findById(req.user._id),
+        User.findById(req.user),
       ]);
 
       if (!user) {

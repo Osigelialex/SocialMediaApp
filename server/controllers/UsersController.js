@@ -1,187 +1,124 @@
 import User from "../models/user.js";
-import bcrypt from "bcryptjs";
+import { ErrorResponse } from '../utils/error.js';
+import { asyncHandler } from "../utils/utils.js";
 
+// get a list of users
+export const getUsers = asyncHandler(async (req, res) => {
+  const users = await User.find({}).select("-password -__v");
+  if (!users) {
+    throw new ErrorResponse("no users found", 404);
+  }
+  res.status(200).json({ message: "no users found" });
+});
 
-const UserController = {
-  getUsers: async (req, res) => {
-    try {
-      const users = await User.find({}).select("-password -__v");
-      if (!users) {
-        return res.status(404).json({ message: "no users found" });
-      }
-      res.status(200).json({ status: "success", users });
-    } catch (error) {
-      res.status(500).json({ error: "error retrieving users" });
-    }
-  },
+// get a user
+export const getUser = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const user = await User.findById(id).select("-password -__v");
+  if (!user) {
+    return res.status(404).json({ error: "user not found" });
+  }
+  res.status(200).json({ status: "success", user });
+});
 
-  getUser: async (req, res) => {
-    try {
-      const { id } = req.params;
-      const user = await User.findById(id).select("-password -__v");
+// update a user
+export const updateUser = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const avatar = req.file.filename;
 
-      if (!user) {
-        return res.status(404).json({ error: "user not found" });
-      }
-      res.status(200).json({ status: "success", user });
-    } catch (error) {
-      res.status(500).json({ error: "could not fetch user details" });
-    }
-  },
+  // prevent user from updating username
+  if (req.body.username) {
+    return res.status(400).json({ error: "username cannot be updated" });
+  }
 
-  updateUser: async (req, res) => {
-    try {
-      const { id } = req.params;
-      const avatar = req.file.filename;
-      console.log(avatar);
+  // prevent user from updating password
+  if (req.body.password) {
+    return res.status(400).json({ error: "password cannot be updated" });
+  }
 
-      // prevent user from updating username
-      if (req.body.username) {
-        return res.status(400).json({ error: "username cannot be updated" });
-      }
+  req.body.avatar = avatar;
+  const user = await User.findByIdAndUpdate(id, req.body, { new: true });
 
-      // prevent user from updating password
-      if (req.body.password) {
-        return res.status(400).json({ error: "password cannot be updated" });
-      }
+  if (!user) {
+    res.status(404).json({ error: "user not found" });
+  }
 
-      req.body.avatar = avatar;
-      const user = await User.findByIdAndUpdate(id, req.body, { new: true });
+  res.status(200).json({
+    status: "success",
+    message: "user updated successfully",
+    user: {
+      id: user._id,
+      username: user.username,
+      displayname: user.displayname,
+      email: user.email,
+      bio: user.bio,
+      location: user.location,
+      avatar: `http://localhost:5000/uploads/${user.avatar}`
+    },
+  });
+})
 
-      if (!user) {
-        res.status(404).json({ error: "user not found" });
-      }
+// create a user
+export const createUser = asyncHandler(async (req, res) => {
+  const { email, ...rest } = req.body;
+  const existingUser = await User.findOne({ email });
+  if (existingUser) {
+    throw new ErrorResponse("User already exists", 409);
+  }
+  const user = await User.create({ email, ...rest });
+  user.password = undefined;
+  res.status(200).json({ status: "success", user });
+});
 
-      res.status(200).json({
-        status: "success",
-        message: "user updated successfully",
-        user: {
-          id: user._id,
-          username: user.username,
-          displayname: user.displayname,
-          email: user.email,
-          bio: user.bio,
-          location: user.location,
-          avatar: `http://localhost:5000/uploads/${user.avatar}`
-        },
-      });
-    } catch (error) {
-      res.status(500).json({ error: "could not update user" });
-    }
-  },
+// delete a user
+export const deleteUser = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const user = await User.findByIdAndDelete(id);
+  if (!user) {
+    return res.status(404).json({ error: "user not found" });
+  }
+  res.status(200).json({
+    status: "success",
+    message: "user deleted successfully",
+    user: {
+      id: user._id,
+      username: user.username,
+      email: user.email,
+    },
+  });
+})
 
-  createUser: async (req, res) => {
-    try {
-      const { username, email, password } = req.body;
-      if (!(username && email && password)) {
-        return res.status(400).json({ error: "all fields are required" });
-      }
+// search for a user by username or displayname
+export const searchUser = asyncHandler(async (req, res) => {
+  const { query } = req.query;
 
-      // check for user with same email
-      const existingUser = await User.findOne({ email });
-      if (existingUser) {
-        return res
-          .status(400)
-          .json({ error: "user already exists with email" });
-      }
+  const [userFromDisplayname, userFromUsername] = await Promise.all([
+    User.findOne({ displayname: query }).select("-password -__v"),
+    User.findOne({ username: query }).select("-password -__v"),
+  ]);
 
-      // check for user with same username
-      const userWithUsername = await User.findOne({ username });
-      if (userWithUsername) {
-        return res
-          .status(400)
-          .json({ error: "user already exists with username" });
-      }
+  if (!(userFromDisplayname || userFromUsername)) {
+    return res.status(404).json({ message: "user not found" });
+  }
 
-      // encrypt password
-      const encryptedPassword = await bcrypt.hash(password, 10);
+  if (userFromDisplayname) {
+    return res
+      .status(200)
+      .json({ status: "success", user: userFromDisplayname });
+  }
 
-      // create new user
-      const user = await User.create({
-        username,
-        email,
-        password: encryptedPassword,
-      });
+  if (userFromUsername) {
+    return res
+      .status(200)
+      .json({ status: "success", user: userFromUsername });
+  }
+})
 
-      res.status(201).json({
-        status: "success",
-        message: "user created successfully",
-        user: {
-          id: user._id,
-          username: user.username,
-          email: user.email,
-        },
-      });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: "internal server error" });
-    }
-  },
-
-  deleteUser: async (req, res) => {
-    const { id } = req.params;
-    try {
-      const user = await User.findByIdAndDelete(id);
-      if (!user) {
-        return res.status(404).json({ error: "user not found" });
-      }
-      res.status(200).json({
-        status: "success",
-        message: "user deleted successfully",
-        user: {
-          id: user._id,
-          username: user.username,
-          email: user.email,
-        },
-      });
-    } catch (error) {
-      res.status(500).json({ error: "could not delelte user" });
-    }
-  },
-
-  searchUser: async (req, res) => {
-    try {
-      const { query } = req.query;
-
-      const [userFromDisplayname, userFromUsername] = await Promise.all([
-        User.findOne({ displayname: query }).select("-password -__v"),
-        User.findOne({ username: query }).select("-password -__v"),
-      ]);
-
-      if (!(userFromDisplayname || userFromUsername)) {
-        return res.status(404).json({ message: "user not found" });
-      }
-
-      if (userFromDisplayname) {
-        return res
-          .status(200)
-          .json({ status: "success", user: userFromDisplayname });
-      }
-
-      if (userFromUsername) {
-        return res
-          .status(200)
-          .json({ status: "success", user: userFromUsername });
-      }
-
-    } catch (error) {
-      console.log(error);
-      return res.status(500).json({ error: "error searching for user" });
-    }
-  },
-
-  getMe: async (req, res) => {
-    try {
-      const user = await User.findById(req.user).select("-password -__v");
-      if (!user) {
-        return res.status(404).json({ error: "user not found" });
-      }
-      res.status(200).json({ status: "success", user });
-    } catch (error) {
-      console.log(error);
-      res.status(500).json({ error: "error recieving user information" });
-    }
-  },
-};
-
-export default UserController;
+// get the current authenticated user
+export const getMe = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user).select("-password -__v");
+  if (!user) {
+    return res.status(404).json({ error: "user not found" });
+  }
+  res.status(200).json({ status: "success", user });
+});

@@ -1,4 +1,4 @@
-import upload from "../middlewares/uploadConfig.js";
+import upload from "../middlewares/uploadConf.middleware.js";
 import { Router } from "express";
 import passport from "passport";
 import {
@@ -8,13 +8,13 @@ import {
   getUser,
   updateUser,
   deleteUser,
-} from "../controllers/UsersController.js";
+} from "../controllers/user.controller.js";
 import {
   followUser,
   unfollowUser,
   getFollowers,
   getFollowing,
-} from "../controllers/FollowerController.js";
+} from "../controllers/follower.controller.js";
 
 const router = Router();
 

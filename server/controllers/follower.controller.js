@@ -1,6 +1,6 @@
-import Follower from "../models/followers.js";
-import User from "../models/user.js";
-import { asyncHandler } from "../utils/utils.js";
+import Follower from "../models/follower.model.js";
+import User from "../models/user.model.js";
+import { asyncHandler } from "../utils/util.utils.js";
 
 /**
  * Get followers of a user

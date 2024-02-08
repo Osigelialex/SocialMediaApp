@@ -1,6 +1,6 @@
-import { Post } from "../models/posts.js";
-import { asyncHandler } from "../utils/utils.js";
-import { ErrorResponse } from "../utils/error.js";
+import { Post } from "../models/post.model.js";
+import { asyncHandler } from "../utils/util.utils.js";
+import { ErrorResponse } from "../utils/error.utils.js";
 
 /**
  * Create a post

@@ -1,6 +1,6 @@
-import User from "../models/user.js";
-import { ErrorResponse } from '../utils/error.js';
-import { asyncHandler } from "../utils/utils.js";
+import User from "../models/user.model.js";
+import { ErrorResponse } from '../utils/error.utils.js';
+import { asyncHandler } from "../utils/util.utils.js";
 
 /**
  * Get all users

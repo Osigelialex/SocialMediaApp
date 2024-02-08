@@ -5,12 +5,12 @@ import {
   getPost,
   updatePost,
   deletePost,
-} from "../controllers/PostsController.js";
+} from "../controllers/post.controller.js";
 import {
   LikePost,
   getPostLikes,
   unlikePost
-} from "../controllers/LikesController.js";
+} from "../controllers/likes.controller.js";
 import {
   createComment,
   getComments,
@@ -18,9 +18,9 @@ import {
   createReply,
   getReplies,
   deleteReply
-} from "../controllers/commentsController.js";
+} from "../controllers/comment.controller.js";
 import { Router } from "express";
-import { handleUpload } from "../middlewares/handleUpload.js";
+import { handleUpload } from "../middlewares/upload.middleware.js";
 
 const router = Router();
 

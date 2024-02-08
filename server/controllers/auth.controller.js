@@ -4,21 +4,21 @@ import bcrypt from "bcryptjs";
 import dotenv from "dotenv";
 
 // internal imports
-import User from "../models/user.js";
-import { ErrorResponse } from '../utils/error.js';
+import User from "../models/user.model.js";
+import { ErrorResponse } from '../utils/error.utils.js';
 import {
   Blacklist,
   ResetToken,
   EmailVerificationToken,
-} from "../models/tokenModel.js";
-import { sendMail } from "../utils/sendMail.js";
+} from "../models/token.model.js";
+import { sendMail } from "../utils/mail.utils.js";
 import {
   asyncHandler,
   checkPassword,
   createAccessToken,
   createRefreshToken,
   verifyToken,
-} from "../utils/utils.js";
+} from "../utils/util.utils.js";
 
 dotenv.config();
 

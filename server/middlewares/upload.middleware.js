@@ -1,6 +1,6 @@
-import upload from "./uploadConfig.js";
+import upload from "./uploadConf.middleware.js";
 import multer from "multer";
-import { ErrorResponse } from "../utils/error.js";
+import { ErrorResponse } from "../utils/error.utils.js";
 
 /**
  * Handles file uploads and returns respective error messages

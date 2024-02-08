@@ -11,16 +11,15 @@ dotenv.config();
 
 const app = express();
 const port = process.env.PORT;
-const DB_URL = "mongodb://0.0.0.0/socialMediaAPI";
 
-await mongoose.connect(DB_URL);
+await mongoose.connect(process.env.DB_URL);
 
 app.use(cors());
 app.use(passport.initialize());
 app.use(json({ limit: "50mb"}));
 app.use(cookieParser());
 app.use(urlencoded({ extended: true, limit: "13mb", parameterLimit: 20000 }));
-app.use('/uploads', express.static('Images'));
+app.use('/uploads', express.static('server/uploads'));
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1", userRoutes);
 app.use("/api/v1", postRoutes);

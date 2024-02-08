@@ -2,7 +2,11 @@ import { Comment, Post, Reply } from "../models/posts.js";
 import { asyncHandler } from "../utils/utils.js";
 import { ErrorResponse } from "../utils/error.js";
 
-// create a new comment for a post
+/**
+ * Create a comment for a post
+ * @param {Object} req - The request body requires a post content and or image
+ * @return - a response entity with the comment object
+ */
 export const createComment = asyncHandler(async (req, res) => {
   const postId = req.params.id;
   const post = await Post.findById(postId);
@@ -25,7 +29,11 @@ export const createComment = asyncHandler(async (req, res) => {
   res.status(200).json({ status: "success", message: "comment created", comment });
 });
 
-// get all comments for a post
+/**
+ * Get all comments for a post
+ * @param {Object} req - The request body requires a post id
+ * @return - a response entity with the comments for a post
+ */
 export const getComments = asyncHandler(async (req, res) => {
   const postId = req.params.id;
   const post = await Post.findById(postId);
@@ -42,7 +50,11 @@ export const getComments = asyncHandler(async (req, res) => {
   res.status(200).json({ status: "success", comments });
 })
 
-// delete a comment
+/**
+ * Delete a comment
+ * @param {Object} req - The request body requires a post id and comment id
+ * @return - a response entity with a success message
+ */
 export const deleteComment = asyncHandler(async (req, res) => {
   const { commentId, id } = req.params;
   const [post, comment] = await Promise.all([
@@ -60,7 +72,11 @@ export const deleteComment = asyncHandler(async (req, res) => {
   res.status(200).json({ status: "success", message: "comment deleted" });
 })
 
-// create a reply to a comment
+/**
+ * Create a reply for a comment
+ * @param {Object} req - The request body requires a comment id and comment content
+ * @return - a response entity with the reply object
+ */
 export const createReply = asyncHandler(async (req, res) => {
   const { id } = req.params;
   const comment = await Comment.findById(id);
@@ -80,7 +96,11 @@ export const createReply = asyncHandler(async (req, res) => {
   return res.status(200).json({ status: "success", message: "reply created", reply });
 })
 
-// get all replies for a comment
+/**
+ * Get all replies for a comment
+ * @param {Object} req - The request body requires a comment id
+ * @return - a response entity with the replies for a comment
+ */
 export const getReplies = asyncHandler(async (req, res) => {
   const { id } = req.params;
   const comment = await Comment.findById(id);
@@ -97,7 +117,11 @@ export const getReplies = asyncHandler(async (req, res) => {
   return res.status(200).json({ status: "success", replies });
 })
 
-// delete a reply
+/**
+ * Delete a reply
+ * @param {Object} req - The request body requires a comment id and reply id
+ * @return - a response entity with a success message
+ */
 export const deleteReply = asyncHandler(async (req, res) => {
   const { id, replyId } = req.params;
   const [comment, reply] = await Promise.all([

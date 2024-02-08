@@ -2,7 +2,11 @@ import Follower from "../models/followers.js";
 import User from "../models/user.js";
 import { asyncHandler } from "../utils/utils.js";
 
-// get followers for a user
+/**
+ * Get followers of a user
+ * @param {Object} req - the request body requires a user id
+ * @return - a response entity with the user and followers
+ */
 export const getFollowers = asyncHandler(async (req, res) => {
   const userId = req.params.id;
   const user = await User.findById(userId);
@@ -19,7 +23,11 @@ export const getFollowers = asyncHandler(async (req, res) => {
   res.status(200).json({ user, followers });
 })
 
-// get following of a user
+/**
+ * Get following of a user
+ * @param {Object} req - the request body requires a user id
+ * @return - a response entity with the user and following
+ */
 export const getFollowing = asyncHandler(async (req, res) => {
   const userId = req.params.id;
   const user = await User.findById(userId);
@@ -36,7 +44,11 @@ export const getFollowing = asyncHandler(async (req, res) => {
   res.status(200).json({ user, following });
 })
 
-// follow a user
+/**
+ * Follow a user
+ * @param {Object} req - the request body requires a user id
+ * @return - a response entity with a success message
+ */
 export const followUser = asyncHandler(async (req, res) => {
   const userId = req.params.id;
   const [user, currentUser] = await Promise.all([
@@ -61,7 +73,11 @@ export const followUser = asyncHandler(async (req, res) => {
   res.status(200).json({ status: "success", message: "User has been followed" });
 })
 
-// unfollow a user
+/**
+ * Unfollow a user
+ * @param {Object} req - the request body requires a user id
+ * @return - a response entity with a success message
+ */
 export const unfollowUser = asyncHandler(async (req, res) => {
   const userId = req.params.id;
   const [user, currentUser] = await Promise.all([

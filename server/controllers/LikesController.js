@@ -2,7 +2,11 @@ import { Post, Like } from "../models/posts.js";
 import { asyncHandler } from "../utils/utils.js";
 import { ErrorResponse } from "../utils/error.js";
 
-// like a post
+/**
+ * Like a post
+ * @param {Object} req - The request body requires a post id
+ * @return - a response entity with the post object
+ */
 export const LikePost = asyncHandler(async (req, res) => {
   const postId = req.params.id;
   const userId = req.user;
@@ -25,7 +29,11 @@ export const LikePost = asyncHandler(async (req, res) => {
   res.status(200).json({ status: "success", message: "post liked", post });
 });
 
-// get likes for a post
+/**
+ * Get all likes for a post
+ * @param {Object} req - The request body requires a post id
+ * @return - a response entity with the likes for a post
+ */
 export const getPostLikes = asyncHandler(async(req, res) => {
   const postId = req.params.id;
   const likes = await Like.find({ post: postId }).populate({
@@ -38,7 +46,11 @@ export const getPostLikes = asyncHandler(async(req, res) => {
   res.status(200).json({ status: "success", likes });
 })
 
-// unlike a post
+/**
+ * Unlike a post
+ * @param {Object} req - The request body requires a post id
+ * @return - a response entity with a success message
+ */
 export const unlikePost = asyncHandler(async (req, res) => {
   const postId = req.params.id;
   const userId = req.user;

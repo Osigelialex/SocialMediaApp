@@ -1,4 +1,4 @@
-import upload from "../middlewares/imageUpload.js";
+import upload from "../middlewares/uploadConfig.js";
 import { Router } from "express";
 import passport from "passport";
 import {

@@ -1,5 +1,6 @@
 import mongoose, { model } from "mongoose";
 import dotenv from "dotenv";
+import bcrypt from "bcryptjs";
 dotenv.config();
 
 const userSchema = new mongoose.Schema(
@@ -22,7 +23,7 @@ const userSchema = new mongoose.Schema(
     },
     bio: { type: String, default: null },
     location: { type: String, default: null },
-    avatar: { type: String, default: null },
+    profilePicture: { type: String, default: null },
     followers: { type: Number, default: 0 },
     following: { type: Number, default: 0 },
     isActive: { type: Boolean, default: false },

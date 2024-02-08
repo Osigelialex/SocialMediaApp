@@ -2,7 +2,10 @@ import User from "../models/user.js";
 import { ErrorResponse } from '../utils/error.js';
 import { asyncHandler } from "../utils/utils.js";
 
-// get a list of users
+/**
+ * Get all users
+ * @return - a response entity with all users
+ */
 export const getUsers = asyncHandler(async (req, res) => {
   const users = await User.find({}).select("-password -__v");
   if (!users) {
@@ -11,7 +14,11 @@ export const getUsers = asyncHandler(async (req, res) => {
   res.status(200).json({ message: "no users found" });
 });
 
-// get a user
+/**
+ * Get a user
+ * @param {Object} req - The request body requires a user id
+ * @return - a response entity with the user object
+ */
 export const getUser = asyncHandler(async (req, res) => {
   const { id } = req.params;
   const user = await User.findById(id).select("-password -__v");
@@ -21,24 +28,27 @@ export const getUser = asyncHandler(async (req, res) => {
   res.status(200).json({ status: "success", user });
 });
 
-// update a user
+/**
+ * Update a user
+ * @param {Object} req - The request body requires a user id
+ * @return - a response entity with the updated user object
+ */
 export const updateUser = asyncHandler(async (req, res) => {
   const { id } = req.params;
-  const avatar = req.file.filename;
 
-  // prevent user from updating username
-  if (req.body.username) {
-    return res.status(400).json({ error: "username cannot be updated" });
+  // ensure updates are only profilePicture, displayname, location, bio
+  const validUpdates = ["profilePicture", "displayname", "location", "bio"];
+  const updates = Object.keys(req.body);
+  const isValidUpdate = updates.every((update) => validUpdates.includes(update));
+  if (!isValidUpdate) {
+    throw new ErrorResponse("invalid updates", 400);
   }
 
-  // prevent user from updating password
-  if (req.body.password) {
-    return res.status(400).json({ error: "password cannot be updated" });
-  }
+  // add profilePicture to req.body if it exists
+  const profilePicture = req.file.path;
+  if (profilePicture) req.body.profilePicture = profilePicture;
 
-  req.body.avatar = avatar;
   const user = await User.findByIdAndUpdate(id, req.body, { new: true });
-
   if (!user) {
     res.status(404).json({ error: "user not found" });
   }
@@ -53,12 +63,16 @@ export const updateUser = asyncHandler(async (req, res) => {
       email: user.email,
       bio: user.bio,
       location: user.location,
-      avatar: `http://localhost:5000/uploads/${user.avatar}`
+      profilePicture: user.profilePicture
     },
   });
 })
 
-// create a user
+/**
+ * Create a user
+ * @param {Object} req - The request body requires a user email and password
+ * @return - a response entity with the user object
+ */
 export const createUser = asyncHandler(async (req, res) => {
   const { email, ...rest } = req.body;
   const existingUser = await User.findOne({ email });
@@ -70,7 +84,11 @@ export const createUser = asyncHandler(async (req, res) => {
   res.status(200).json({ status: "success", user });
 });
 
-// delete a user
+/**
+ * Delete a user
+ * @param {Object} req - The request body requires a user id
+ * @return - a response entity with a success message
+ */
 export const deleteUser = asyncHandler(async (req, res) => {
   const { id } = req.params;
   const user = await User.findByIdAndDelete(id);
@@ -88,7 +106,11 @@ export const deleteUser = asyncHandler(async (req, res) => {
   });
 })
 
-// search for a user by username or displayname
+/**
+ * Search for a user
+ * @param {String} query - The query string containing the user's displayname or username
+ * @return - a response entity with the user object
+ */
 export const searchUser = asyncHandler(async (req, res) => {
   const { query } = req.query;
 
@@ -114,7 +136,11 @@ export const searchUser = asyncHandler(async (req, res) => {
   }
 })
 
-// get the current authenticated user
+/**
+ * Get the current authenicatd user
+ * @param {Object} req - the request body requires a user id
+ * @return - a response entity with the user and followers
+ */
 export const getMe = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user).select("-password -__v");
   if (!user) {

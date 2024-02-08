@@ -4,6 +4,7 @@ import mongoose from 'mongoose';
 const postSchema = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   image: { type: String, default: null },
+  imageUrl: { type: String, default: null },
   content: { type: String, required: true },
   likes: { type: Number, default: 0 },
   comments: { type: Number, default: 0 }

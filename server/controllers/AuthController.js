@@ -22,7 +22,11 @@ import {
 
 dotenv.config();
 
-// Sign up users
+/**
+ * Registers new users
+ * @param {Object} req - the request body requirs a username, email, and password
+ * @return - a response entity with containing the user object
+ */
 export const signup = asyncHandler(async (req, res) => {
   const { email, ...rest } = req.body;
   const existingUser = await User.findOne({ email });
@@ -34,7 +38,11 @@ export const signup = asyncHandler(async (req, res) => {
   res.status(200).json({ status: "success", user });
 });
 
-// login new users and generate tokens
+/**
+ * Logs in users
+ * @param {Object} req - the request body requires an email and password
+ * @return - a response entity with the user object, access token and refresh token
+ */
 export const login = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email });
@@ -55,7 +63,11 @@ export const login = asyncHandler(async (req, res) => {
   res.status(200).json({ status: "success", user, accessToken, refreshToken });
 });
 
-// refresh access token
+/**
+ * Refreshes access token
+ * @param {Object} req - the request body requires a refresh token
+ * @return - a response entity with the new access token
+ */
 export const refreshToken = asyncHandler(async (req, res) => {
   const refreshToken = req.cookies.refreshToken;
   if (!refreshToken) {
@@ -73,7 +85,11 @@ export const refreshToken = asyncHandler(async (req, res) => {
   res.status(200).json({ status: "success", accessToken });
 });
 
-// request email verification link
+/**
+ * Verifies user's email
+ * @param {Object} req - the request body requires an email
+ * @return - a response entity with a message and link to verify email
+ */
 export const requestEmailVerification = asyncHandler(async (req, res) => {
   const { email } = req.body;
   if (!email) {
@@ -101,7 +117,7 @@ export const requestEmailVerification = asyncHandler(async (req, res) => {
   await sendMail(
     email,
     "Account Verification",
-    `Hello, ${user.firstName} ${user.lastName} \n\n Please click on the link below to verify your account \n\n ${link} \n\n Thanks, \n\n Cipher Design`
+    `Hello, ${user.username} \n\n Please click on the link below to verify your account \n\n ${link} \n\n Thanks, \n\n Z.com`
   );
 
   return res.status(200).json({
@@ -111,7 +127,11 @@ export const requestEmailVerification = asyncHandler(async (req, res) => {
   });
 });
 
-// verify email
+/**
+ * Verifies user's email
+ * @param {Object} req - the request body requires a userId and token
+ * @return - a response entity with a success message
+ */
 export const verifyEmail = asyncHandler(async (req, res) => {
   const { userId, token } = req.body;
   if (!userId || !token) {
@@ -133,14 +153,18 @@ export const verifyEmail = asyncHandler(async (req, res) => {
   await sendMail(
     user.email,
     "Account Verification",
-    `Hello, ${user.firstName} ${user.lastName} \n\n Your account has been verified successfully \n\n Thanks, \n\n Cipher Design`
+    `Hello, ${user.username} \n\n Your account has been verified successfully \n\n Thanks, \n\n Z.com`
   );
   res
     .status(200)
     .json({ status: "success", message: "Account verified successfully" });
 });
 
-// request password reset
+/**
+ * Requests password reset
+ * @param {Object} req - the request body requires an email
+ * @return - a response entity with a message and link to reset password
+ */
 export const requestPasswordReset = asyncHandler(async (req, res) => {
   const { email } = req.body;
   const user = await User.findOne({ email });
@@ -160,14 +184,18 @@ export const requestPasswordReset = asyncHandler(async (req, res) => {
   await sendMail(
     email,
     "Password Reset",
-    `Hello, ${user.firstName} ${user.lastName} \n\n Please click on the link below to reset your password \n\n ${link} \n\n Thanks, \n\n Cipher Design}`
+    `Hello, ${user.username} \n\n Please click on the link below to reset your password \n\n ${link} \n\n Thanks, \n\n Z.com`
   );
   res
     .status(200)
     .json({ status: "success", message: "Password reset link sent", link });
 });
 
-// reset password
+/**
+ * Resets user's password
+ * @param {Object} req - the request body requires a userId, token and password
+ * @return - a response entity with a success message
+ */
 export const resetPassword = asyncHandler(async (req, res) => {
   const { userId, token, password } = req.body;
   const passwordResetToken = await ResetToken.findOne({ userId });
@@ -184,14 +212,18 @@ export const resetPassword = asyncHandler(async (req, res) => {
   await sendMail(
     user.email,
     "Password Reset",
-    `Hello, ${user.firstName} ${user.lastName} \n\n Your password has been reset successfully \n\n Thanks, \n\n Cipher Design`
+    `Hello, ${user.username} \n\n Your password has been reset successfully \n\n Thanks, \n\n Z.com`
   );
   res
     .status(200)
     .json({ status: "success", message: "Password reset successful" });
 });
 
-// logout
+/**
+ * Logs out users
+ * The cookie is cleared and the refresh token is blacklisted
+ * @return - a response entity with a success message
+ */
 export const logout = asyncHandler(async (req, res) => {
   const refreshToken = req.cookies.refreshToken;
   await Blacklist.create({ token: refreshToken });

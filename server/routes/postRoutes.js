@@ -1,4 +1,3 @@
-import upload from "../middlewares/imageUpload.js";
 import passport from "../config/passport.js";
 import {
   createPost,
@@ -21,13 +20,14 @@ import {
   deleteReply
 } from "../controllers/commentsController.js";
 import { Router } from "express";
+import { handleUpload } from "../middlewares/handleUpload.js";
 
 const router = Router();
 
 router.post(
   "/posts",
   passport.authenticate("jwt", { session: false }),
-  upload.single("image"),
+  handleUpload,
   createPost
 );
 router.get(

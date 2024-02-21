@@ -23,11 +23,11 @@ const userSchema = new mongoose.Schema(
     },
     bio: { type: String, default: null },
     location: { type: String, default: null },
-    profilePicture: { type: String, default: null },
-    followers: { type: Number, default: 0 },
-    following: { type: Number, default: 0 },
-    isActive: { type: Boolean, default: false },
-    isAdmin: { type: Boolean, default: false }
+    profilePicture: {
+      type: String,
+      default: null,
+    },
+    friends: { type: Array, default: [] }
   },
   { timestamps: true }
 );

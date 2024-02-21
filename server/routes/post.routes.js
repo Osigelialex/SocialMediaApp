@@ -5,11 +5,11 @@ import {
   getPost,
   updatePost,
   deletePost,
+  getPostsByUser,
 } from "../controllers/post.controller.js";
 import {
   LikePost,
-  getPostLikes,
-  unlikePost
+  unlikePost,
 } from "../controllers/likes.controller.js";
 import {
   createComment,
@@ -17,13 +17,14 @@ import {
   deleteComment,
   createReply,
   getReplies,
-  deleteReply
+  deleteReply,
 } from "../controllers/comment.controller.js";
 import { Router } from "express";
 import { handleUpload } from "../middlewares/upload.middleware.js";
 
 const router = Router();
 
+// posts routes
 router.post(
   "/posts",
   passport.authenticate("jwt", { session: false }),
@@ -40,6 +41,11 @@ router.get(
   passport.authenticate("jwt", { session: false }),
   getPost
 );
+router.get(
+  "/posts/user/:id",
+  passport.authenticate("jwt", { session: false }),
+  getPostsByUser
+);
 router.put(
   "/posts/:id",
   passport.authenticate("jwt", { session: false }),
@@ -50,21 +56,20 @@ router.delete(
   passport.authenticate("jwt", { session: false }),
   deletePost
 );
+
+// likes routes
 router.post(
   "/posts/:id/likes",
   passport.authenticate("jwt", { session: false }),
   LikePost
-);
-router.get(
-  "/posts/:id/likes",
-  passport.authenticate("jwt", { session: false }),
-  getPostLikes
 );
 router.delete(
   "/posts/:id/likes",
   passport.authenticate("jwt", { session: false }),
   unlikePost
 );
+
+// comment routes
 router.post(
   "/posts/:id/comments",
   passport.authenticate("jwt", { session: false }),
@@ -80,6 +85,8 @@ router.delete(
   passport.authenticate("jwt", { session: false }),
   deleteComment
 );
+
+// reply routes
 router.post(
   "/comments/:id/replies",
   passport.authenticate("jwt", { session: false }),

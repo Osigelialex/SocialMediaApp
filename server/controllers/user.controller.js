@@ -1,5 +1,5 @@
 import User from "../models/user.model.js";
-import { ErrorResponse } from '../utils/error.utils.js';
+import { ErrorResponse } from "../utils/error.utils.js";
 import { asyncHandler } from "../utils/util.utils.js";
 
 /**
@@ -11,7 +11,8 @@ export const getUsers = asyncHandler(async (req, res) => {
   if (!users) {
     throw new ErrorResponse("no users found", 404);
   }
-  res.status(200).json({ message: "no users found" });
+
+  res.status(200).json({ users });
 });
 
 /**
@@ -36,37 +37,41 @@ export const getUser = asyncHandler(async (req, res) => {
 export const updateUser = asyncHandler(async (req, res) => {
   const { id } = req.params;
 
-  // ensure updates are only profilePicture, displayname, location, bio
-  const validUpdates = ["profilePicture", "displayname", "location", "bio"];
+  // Ensure updates are only valid fields
+  const validUpdates = ["file", "displayname", "location", "bio"];
   const updates = Object.keys(req.body);
-  const isValidUpdate = updates.every((update) => validUpdates.includes(update));
+  const isValidUpdate = updates.every((update) =>
+    validUpdates.includes(update)
+  );
   if (!isValidUpdate) {
-    throw new ErrorResponse("invalid updates", 400);
+    throw new ErrorResponse("Invalid updates", 400);
   }
 
-  // add profilePicture to req.body if it exists
-  const profilePicture = req.file.path;
-  if (profilePicture) req.body.profilePicture = profilePicture;
+  // Add profilePicture to req.body if a file is present
+  const profilePicture = req.file ? req.file.filename : null;
+  if (profilePicture) {
+    req.body.profilePicture = profilePicture;
+  }
 
   const user = await User.findByIdAndUpdate(id, req.body, { new: true });
   if (!user) {
-    res.status(404).json({ error: "user not found" });
+    return res.status(404).json({ error: "User not found" });
   }
 
   res.status(200).json({
     status: "success",
-    message: "user updated successfully",
+    message: "User updated successfully",
     user: {
       id: user._id,
       username: user.username,
       displayname: user.displayname,
-      email: user.email,
+      email: user.email, // Assuming you want to include email in the response
       bio: user.bio,
       location: user.location,
-      profilePicture: user.profilePicture
+      profilePicture: user.profilePicture,
     },
   });
-})
+});
 
 /**
  * Create a user
@@ -104,7 +109,7 @@ export const deleteUser = asyncHandler(async (req, res) => {
       email: user.email,
     },
   });
-})
+});
 
 /**
  * Search for a user
@@ -112,29 +117,26 @@ export const deleteUser = asyncHandler(async (req, res) => {
  * @return - a response entity with the user object
  */
 export const searchUser = asyncHandler(async (req, res) => {
-  const { query } = req.query;
+  const query = req.query.query;
+
+  console.log(query);
 
   const [userFromDisplayname, userFromUsername] = await Promise.all([
     User.findOne({ displayname: query }).select("-password -__v"),
     User.findOne({ username: query }).select("-password -__v"),
   ]);
 
-  if (!(userFromDisplayname || userFromUsername)) {
-    return res.status(404).json({ message: "user not found" });
-  }
-
-  if (userFromDisplayname) {
+  if (userFromDisplayname || userFromUsername) {
     return res
       .status(200)
-      .json({ status: "success", user: userFromDisplayname });
+      .json({
+        status: "success",
+        user: userFromDisplayname || userFromUsername,
+      });
+  } else {
+    throw new ErrorResponse("User not found", 404);
   }
-
-  if (userFromUsername) {
-    return res
-      .status(200)
-      .json({ status: "success", user: userFromUsername });
-  }
-})
+});
 
 /**
  * Get the current authenicatd user

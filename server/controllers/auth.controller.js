@@ -5,7 +5,7 @@ import dotenv from "dotenv";
 
 // internal imports
 import User from "../models/user.model.js";
-import { ErrorResponse } from '../utils/error.utils.js';
+import { ErrorResponse } from "../utils/error.utils.js";
 import {
   Blacklist,
   ResetToken,
@@ -28,12 +28,19 @@ dotenv.config();
  * @return - a response entity with containing the user object
  */
 export const signup = asyncHandler(async (req, res) => {
-  const { email, ...rest } = req.body;
-  const existingUser = await User.findOne({ email });
-  if (existingUser) {
-    throw new ErrorResponse("User already exists", 409);
+  const { email, username, ...rest } = req.body;
+  const existingEmail = await User.findOne({ email });
+
+  if (existingEmail) {
+    throw new ErrorResponse("Email already exists", 409);
   }
-  const user = await User.create({ email, ...rest });
+
+  const existingUsername = await User.findOne({ username });
+  if (existingUsername) {
+    throw new ErrorResponse("Username already exists", 409);
+  }
+
+  const user = await User.create({ email, username, ...rest });
   user.password = undefined;
   res.status(200).json({ status: "success", user });
 });
@@ -46,20 +53,25 @@ export const signup = asyncHandler(async (req, res) => {
 export const login = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email });
+
   if (!user) {
-    throw new ErrorResponse("Invalid credentials", 401)
+    throw new ErrorResponse("Invalid credentials", 401);
   }
+
   const isValid = await checkPassword.call(user, password);
   if (!isValid) {
-    throw new ErrorResponse("Invalid credentials", 401)
+    throw new ErrorResponse("Invalid credentials", 401);
   }
-  if (user.isActive === false) {
-    throw new ErrorResponse("Account not verified", 401)
-  }
+
   user.password = undefined;
   const accessToken = createAccessToken(user._id);
   const refreshToken = createRefreshToken(user._id);
-  res.cookie("refreshToken", refreshToken, { httpOnly: true });
+
+  res.cookie("refreshToken", refreshToken, {
+    httpOnly: true,
+    SameSite: "none",
+  });
+
   res.status(200).json({ status: "success", user, accessToken, refreshToken });
 });
 
@@ -70,17 +82,21 @@ export const login = asyncHandler(async (req, res) => {
  */
 export const refreshToken = asyncHandler(async (req, res) => {
   const refreshToken = req.cookies.refreshToken;
+
   if (!refreshToken) {
     throw new ErrorResponse("Token not found", 404);
   }
+
   const decoded = verifyToken(refreshToken);
   if (!decoded) {
     throw new ErrorResponse("Invalid token", 401);
   }
+
   const tokenBlacklisted = await Blacklist.findOne({ token: refreshToken });
   if (tokenBlacklisted) {
     throw new ErrorResponse("Invalid token", 401);
   }
+
   const accessToken = createAccessToken(decoded.id);
   res.status(200).json({ status: "success", accessToken });
 });
@@ -95,6 +111,7 @@ export const requestEmailVerification = asyncHandler(async (req, res) => {
   if (!email) {
     throw new ErrorResponse("Email is required", 400);
   }
+
   const user = await User.findOne({ email });
   if (!user) {
     throw new ErrorResponse(`No account associated with ${email}`, 404);
@@ -102,6 +119,7 @@ export const requestEmailVerification = asyncHandler(async (req, res) => {
 
   const token = await EmailVerificationToken.findOne({ userId: user._id });
   if (token) await EmailVerificationToken.deleteOne({ userId: user._id });
+
   const emailVerificationToken = crypto.randomBytes(32).toString("hex");
   const hashedToken = await bcrypt.hash(
     emailVerificationToken,
@@ -137,24 +155,30 @@ export const verifyEmail = asyncHandler(async (req, res) => {
   if (!userId || !token) {
     throw new ErrorResponse("Invalid verification link", 401);
   }
+
   const emailVerificationToken = await EmailVerificationToken.findOne({
     userId,
   });
+
   if (!emailVerificationToken) {
     throw new ErrorResponse("Invalid verification link", 401);
   }
+
   const isValid = await bcrypt.compare(token, emailVerificationToken.token);
   if (!isValid) {
     throw new ErrorResponse("Invalid verification link", 401);
   }
+
   const user = await User.findById(userId);
   user.isActive = true;
   await Promise.all([user.save(), emailVerificationToken.deleteOne()]);
+
   await sendMail(
     user.email,
     "Account Verification",
     `Hello, ${user.username} \n\n Your account has been verified successfully \n\n Thanks, \n\n Z.com`
   );
+
   res
     .status(200)
     .json({ status: "success", message: "Account verified successfully" });
@@ -168,11 +192,14 @@ export const verifyEmail = asyncHandler(async (req, res) => {
 export const requestPasswordReset = asyncHandler(async (req, res) => {
   const { email } = req.body;
   const user = await User.findOne({ email });
+
   if (!user) {
     throw new ErrorResponse(`No account associated with ${email}`, 404);
   }
+
   const token = await ResetToken.find({ userId: user._id });
   if (token) await ResetToken.deleteOne({ userId: user._id });
+
   const resetToken = crypto.randomBytes(32).toString("hex");
   const hashedResetToken = await bcrypt.hash(
     resetToken,
@@ -199,21 +226,26 @@ export const requestPasswordReset = asyncHandler(async (req, res) => {
 export const resetPassword = asyncHandler(async (req, res) => {
   const { userId, token, password } = req.body;
   const passwordResetToken = await ResetToken.findOne({ userId });
+
   if (!passwordResetToken) {
     throw new ErrorResponse("Invalid or expired reset token", 401);
   }
+
   const isValid = await bcrypt.compare(token, passwordResetToken.token);
   if (!isValid) {
     throw new ErrorResponse("Invalid or expired reset token", 401);
   }
+
   const user = await User.findOne({ _id: userId });
   user.password = password;
+
   await Promise.all([user.save(), passwordResetToken.deleteOne()]);
   await sendMail(
     user.email,
     "Password Reset",
     `Hello, ${user.username} \n\n Your password has been reset successfully \n\n Thanks, \n\n Z.com`
   );
+
   res
     .status(200)
     .json({ status: "success", message: "Password reset successful" });

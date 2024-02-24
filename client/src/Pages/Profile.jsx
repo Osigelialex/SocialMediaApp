@@ -11,7 +11,7 @@ const Profile = () => {
   const { userId } = useParams();
   const [posts, setPosts] = useState(null);
   const [userData, setUserData] = useState(null);
-  const [suggestions, setSuggestions] = useState(null);
+  const [suggestions, setSuggestions] = useState([]);
   const [loading, setLoading] = useState(true);
   const loggedInUser = JSON.parse(localStorage.getItem("userData"));
 
@@ -71,7 +71,7 @@ const Profile = () => {
           profilePicture={loggedInUser.profilePicture}
           displayname={loggedInUser.displayname}
         />
-        <div className="w-full sm:w-2/4 sm:ml-40 bg-[#efefef] p-2 grid place-items-center">
+        <div className="w-full sm:w-2/4 sm:ml-40 ml-14 bg-black p-2 grid place-items-center">
           <CircularProgress color="inherit" />
         </div>
         <FollowSuggestion suggestions={suggestions} />
@@ -79,7 +79,7 @@ const Profile = () => {
     );
   } else {
     return (
-      <div className="min-h-screen flex font-roboto text-black">
+      <div className="min-h-screen flex font-roboto text-darkthemetext">
         <SideNav
           profilePicture={loggedInUser.profilePicture}
           displayname={loggedInUser.displayname}
@@ -88,7 +88,8 @@ const Profile = () => {
           userId={userData._id}
           displayname={userData.displayname}
           username={userData.username}
-          friends={userData.friends.length}
+          followers={userData.followers.length}
+          following={userData.following.length}
           bio={userData.bio}
           profilePicture={userData.profilePicture}
           posts={posts}

@@ -7,7 +7,7 @@ import API_BASE_URL from "../apiConfig";
 
 const Home = () => {
   const userData = JSON.parse(localStorage.getItem("userData"));
-  const [suggestions, setSuggestions] = useState(null);
+  const [suggestions, setSuggestions] = useState([]);
 
   useEffect(() => {
     const request = async () => {
@@ -28,6 +28,8 @@ const Home = () => {
       const responseData = await MakeRequest(baseURL, requestOptions);
       if (responseData) {
         setSuggestions(responseData.suggestions);
+      } else {
+        setSuggestions([]);
       }
     };
 

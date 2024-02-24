@@ -81,15 +81,15 @@ const TimeLine = (props) => {
   };
 
   return (
-    <div className="bg-[#efefef] w-full sm:w-2/4 sm:ml-40 p-2">
-      <div className="w-full bg-white p-3 border-2">
+    <div className="bg-black w-full sm:w-2/4 sm:ml-40 ml-14 p-2">
+      <div className="w-full bg-darkBg text-darkthemetext p-3">
         {postCreated && (
           <Alert severity="info">You successfully created a post.</Alert>
         )}
         <h3 className="text-left font-bold">Home</h3>
       </div>
 
-      <div className="w-full bg-white p-3 mb-2 border-2 min-h-fit flex gap-3">
+      <div className="w-full bg-darkBg text-darkthemetext p-3 mb-2 min-h-fit flex gap-3">
         <Avatar
           alt={props.data.displayname}
           src={
@@ -103,7 +103,7 @@ const TimeLine = (props) => {
             type="text"
             name="content"
             placeholder="Share a new post!"
-            className="text-lg w-full outline-none"
+            className="text-lg w-full outline-none bg-transparent"
             onChange={(e) => setContent(e.target.value)}
             required
           />
@@ -118,7 +118,7 @@ const TimeLine = (props) => {
             </div>
           )}
 
-          <div className="flex justify-end gap-3 text-blue-900 text-md my-5 border-t pt-2">
+          <div className="flex justify-end gap-3 text-blue-900 text-md my-5 pt-2">
             <label htmlFor="file">
               <FaImage />
             </label>

@@ -23,11 +23,9 @@ const userSchema = new mongoose.Schema(
     },
     bio: { type: String, default: null },
     location: { type: String, default: null },
-    profilePicture: {
-      type: String,
-      default: null,
-    },
-    friends: { type: Array, default: [] }
+    profilePicture: { type: String, default: null },
+    following: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
   },
   { timestamps: true }
 );

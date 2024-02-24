@@ -1,10 +1,8 @@
-import TextField from "@mui/material/TextField";
 import { useState, useEffect } from "react";
 import API_BASE_URL from "../apiConfig";
 import MakeRequest from "../utils/MakeRequest";
 import CircularProgress from "@mui/material/CircularProgress";
-import ProfilePicture from "./profilePicture";
-import { SlUserFollow } from "react-icons/sl";
+import UserCard from "./userCard";
 
 const search = () => {
   const [search, setSearch] = useState("");
@@ -50,9 +48,9 @@ const search = () => {
   };
 
   return (
-    <div className="bg-white rounded-xl p-4 mb-14 w-full">
+    <div className="bg-darkBg rounded-xl p-4 mb-14 w-full text-darkthemetext">
       <div className="flex gap-3">
-        <TextField
+        {/* <TextField
           margin="dense"
           id="search"
           name="query"
@@ -61,32 +59,23 @@ const search = () => {
           fullWidth
           type="text"
           value={search}
-          on
-          onChange={(e) => { setSearch(e.target.value) }}
+          onChange={(e) => {
+            setSearch(e.target.value);
+          }}
+        /> */}
+        <input 
+          type="text"
+          name="query"
+          value={search}
+          placeholder="Search for a user..."
+          onChange={(e) => setSearch(e.target.value)}
+          className="text-darkthemetext p-2 bg-field rounded-md w-full outline-none"
         />
       </div>
       <div className="grid place-items-center my-3">
         {loading && <CircularProgress />}
       </div>
-      {searchResults && (
-        <div className="flex justify-between bg-slate-50 rounded-md shadow-md p-2">
-          <div className="flex gap-2">
-            <ProfilePicture
-              profilePicture={searchResults.profilePicture}
-              alt={searchResults.username}
-              userId={searchResults._id}
-            />
-
-            <div>
-              <p>{searchResults.displayname}</p>
-              <p>@{searchResults.username}</p>
-            </div>
-          </div>
-          <div className="grid place-items-center cursor-pointer">
-            <SlUserFollow size={20} />
-          </div>
-        </div>
-      )}
+      {searchResults && <UserCard user={searchResults} />}
       {notFound && <p>No user found</p>}
     </div>
   );

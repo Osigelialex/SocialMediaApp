@@ -39,7 +39,7 @@ const SideNav = ({ userId, profilePicture, displayname }) => {
   };
 
   return (
-    <div className="w-40 fixed hidden flex-1 sm:flex flex-col justify-between overflow-y-scroll no-scrollbar mr-2 border-r-2 h-screen p-3 text-gray-700">
+    <div className="sm:w-40 w-14 fixed flex-1 bg-darkBg sm:flex flex-col justify-between overflow-y-scroll no-scrollbar mr-1 h-screen text-gray-700">
       {logoutFailure && <Error action="log out" />}
       <Link to="/home">
         <NavItem icon={<IoHome />} />
@@ -66,7 +66,7 @@ const SideNav = ({ userId, profilePicture, displayname }) => {
 const NavItem = ({ icon, onClick }) => {
   return (
     <div
-      className="p-4 my-6 grid place-items-center sm:w-1/2 text-xl mx-auto cursor-pointer hover:bg-gray-200 rounded-full"
+      className="my-6 grid place-items-center w-12 h-12 text-xl mx-auto cursor-pointer hover:bg-gray-800 rounded-full"
       onClick={onClick}
     >
       {icon}

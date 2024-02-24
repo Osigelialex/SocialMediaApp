@@ -25,15 +25,17 @@ export const getFriends = asyncHandler(async (req, res) => {
 export const getFollowSuggestions = asyncHandler(async (req, res) => {
   const userId = req.params.id;
 
-  const user = await User.findById(userId);
+  const user = await User.findById(userId, { _id: 1, following: 1 });
   if (!user) {
     return new ErrorResponse("user not found", 404);
   }
 
+  const excludedIds = user.following.map((followingId) => followingId.toString());
+  excludedIds.push(userId);
+
   const suggestions = await User.find({
-    _id: { $ne: userId },
-    friends: { $ne: userId },
-  }).limit(5);
+    _id: { $nin: excludedIds }
+  })
 
   res.status(200).json({ status: "success", suggestions });
 });
@@ -45,22 +47,20 @@ export const getFollowSuggestions = asyncHandler(async (req, res) => {
  */
 export const followUser = asyncHandler(async (req, res) => {
   const userId = req.params.id;
+  const currentUser = req.user;
 
-  const [user, currentUser] = await Promise.all([
-    User.findById(userId),
-    User.findById(req.user),
-  ]);
-
+  const user = await User.findById(userId);
   if (!user) {
     throw new ErrorResponse("user not found", 404);
   }
 
-  if (currentUser.friends.includes(userId)) {
+  if (currentUser.following.includes(userId)) {
     throw new ErrorResponse("user already followed", 403);
   }
 
-  currentUser.friends.push(userId);
-  await currentUser.save();
+  currentUser.following.push(userId);
+  user.followers.push(req.user._id);
+  await Promise.all([ user.save(), currentUser.save() ]);
 
   res
     .status(200)
@@ -74,22 +74,20 @@ export const followUser = asyncHandler(async (req, res) => {
  */
 export const unfollowUser = asyncHandler(async (req, res) => {
   const userId = req.params.id;
+  const currentUser = req.user;
 
-  const [user, currentUser] = await Promise.all([
-    User.findById(userId),
-    User.findById(req.user),
-  ]);
-
+  const user = await User.findById(userId);
   if (!user) {
     throw new ErrorResponse("user not found", 404);
   }
 
-  if (!currentUser.friends.includes(userId)) {
+  if (!currentUser.following.includes(userId)) {
     throw new ErrorResponse("user not followed", 403);
   }
 
-  currentUser.friends.push(userId);
-  await currentUser.save();
+  currentUser.following.pull(userId);
+  user.followers.pull(req.user._id);
+  await Promise.all([ user.save(), currentUser.save() ]);
 
   res
     .status(200)

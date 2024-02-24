@@ -1,7 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [
-    "./index.html",
+    "index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
@@ -10,7 +10,9 @@ export default {
         roboto: ["Roboto", "sans-serif"],
       },
       colors: {
-        midnight: '#efefef'
+        darkBg: '#1a1a1b',
+        darkthemetext: '#d7dadc',
+        field: '#272729'
       }
     },
   },

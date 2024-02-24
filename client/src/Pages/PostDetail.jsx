@@ -7,15 +7,16 @@ import CircularProgress from "@mui/material/CircularProgress";
 import FollowSuggestion from "../Components/FollowSuggestion";
 import Post from "../Components/Post";
 import CommentCard from "../Components/commentCard";
-import ProfilePicture from "../Components/profilePicture";
-import Button from "@mui/material/Button";
+import { MdOutlineDelete } from "react-icons/md";
+import { Alert } from "@mui/material";
 
 const PostDetail = () => {
-
   const [postData, setPostData] = useState(null);
   const [postComments, setPostComments] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [suggestion, setSuggestions] = useState(null);
+  const [textarea, setTextarea] = useState("");
+  const [commentCreated, setCommentCreated] = useState(false);
+  const [suggestion, setSuggestions] = useState([]);
   const loggedInUser = JSON.parse(localStorage.getItem("userData"));
   const { postId } = useParams();
 
@@ -74,6 +75,30 @@ const PostDetail = () => {
     }
   };
 
+  const deleteContents = () => {
+    setTextarea("");
+  }
+
+  const createComment = async () => {
+    const url = `${API_BASE_URL}/posts/${postId}/comments`;
+    const requestOptions = {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ content: textarea })
+    }
+    const data = await MakeRequest(url, requestOptions);
+    if (data) {
+      // display for two seconds
+      setCommentCreated(true);
+      setTimeout(() => setCommentCreated(false), 2000);
+      setTextarea('');
+    }
+  }
+
   useEffect(() => {
     getPostData()
       .then(() => fetchSuggestions())
@@ -81,10 +106,16 @@ const PostDetail = () => {
       .then(() => setLoading(false));
   }, []);
 
+  useEffect(() => {
+    getPostComments();
+  }, [commentCreated]);
+
   return (
     <div className="min-h-screen flex font-roboto text-black">
       <SideNav profilePicture={loggedInUser.profilePicture} />
-      <div className="bg-[#efefef] w-full sm:w-2/4 sm:ml-40 p-2">
+      <div className="bg-black w-full sm:w-2/4 sm:ml-40 ml-14 p-2">
+        {/* show comment created alert */}
+        {commentCreated && <Alert severity="success">Comment created successfully</Alert>}
         {loading ? (
           <div className="flex justify-center items-center h-full">
             <CircularProgress />
@@ -106,22 +137,23 @@ const PostDetail = () => {
           />
         )}
         <div>
-          <div className="p-2 flex justify-between gap-3">
-            <ProfilePicture
-              profilePicture={loggedInUser.profilePicture}
-              alt={loggedInUser.username}
-              userId={loggedInUser._id}
-            />
-            <form className="w-3/4">
-              <input 
-                type='text'
-                placeholder="Post your reply..."
-                className="border-none text-lg p-2 bg-transparent w-full text-gray-500 focus:outline-none"
-              />
-            </form>
-            <Button variant="contained" type="submit">Reply</Button>
+          <p className="text-sm my-2 font-medium">Add your comment</p>
+          <textarea
+            value={textarea}
+            placeholder="Share your thoughts..."
+            className="w-full P-2 focus:outline-darkthemetext bg-darkBg text-darkthemetext outline-none h-32 text-lg"
+            onChange={(e) => setTextarea(e.target.value)}
+          ></textarea>
+
+          <div className="w-full bg-field flex gap-3 align-middle justify-end m-0 p-2 border-1 border-black">
+            <MdOutlineDelete size={30} style={{ color: 'white' }} onClick={deleteContents} className="cursor-pointer" />
+            <button
+              className="rounded-lg font-bold p-2 bg-darkthemetext"
+              onClick={createComment}
+            >Comment</button>
           </div>
-          <h3 className="text-left font-bold text-black text-lg my-3">
+
+          <h3 className="text-left font-bold text-black text-lg my-3" onClick={createComment}>
             Comments
           </h3>
           {postComments &&

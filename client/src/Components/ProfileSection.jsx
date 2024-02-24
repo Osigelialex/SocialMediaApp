@@ -15,7 +15,8 @@ const ProfileSection = ({
   userId,
   displayname,
   username,
-  friends,
+  followers,
+  following,
   profilePicture,
   bio,
   posts,
@@ -35,7 +36,7 @@ const ProfileSection = ({
   };
 
   return (
-    <div className="w-full sm:w-2/4 sm:ml-40 bg-[#efefef] p-2">
+    <div className="w-full sm:w-2/4 sm:ml-40 ml-14 bg-black p-2">
       <Dialog
         open={open}
         onClose={handleClose}
@@ -123,9 +124,9 @@ const ProfileSection = ({
           <Button type="submit">Save</Button>
         </DialogActions>
       </Dialog>
-      <div className="text-center p-3 bg-white rounded-md relative">
+      <div className="text-center p-3 bg-darkBg text-darkthemetext rounded-md relative">
         <span
-          className="absolute right-5 hover:bg-gray-200 rounded-full p-3 cursor-pointer"
+          className="absolute right-5 rounded-full p-3 cursor-pointer"
           onClick={handleClickOpen}
         >
           <IoPencil />
@@ -144,12 +145,15 @@ const ProfileSection = ({
           </p>
 
           <p className="text-gray-500 text-sm sm:text-md">@{username}</p>
-          <div>
+          <div className="flex gap-3">
             <p className="text-md sm:text-lg font-bold">
-              {friends} <span className="text-gray-500">Friends</span>
+              {following} <span className="text-gray-500">Following</span>
+            </p>
+            <p className="text-md sm:text-lg font-bold">
+              {followers} <span className="text-gray-500">Followers</span>
             </p>
           </div>
-          <p className="text-sm sm:text-md text-gray-500 w-2/3 my-4">{bio}</p>
+          {bio !== null && <p className="text-sm sm:text-md text-gray-500 w-2/3 my-4">{bio}</p>}
         </div>
       </div>
       <div>

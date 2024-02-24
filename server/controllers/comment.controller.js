@@ -56,7 +56,7 @@ export const getComments = asyncHandler(async (req, res) => {
   const comments = await Comment.find({ post: postId }).populate(
     "user",
     "-password -__v"
-  );
+  ).sort({ createdAt: -1 });
 
   if (comments.length === 0) {
     throw new ErrorResponse("no comments found", 404);

@@ -54,7 +54,7 @@ const Signup = () => {
   };
 
   return (
-    <div className="min-h-screen grid place-items-center font-roboto">
+    <div className="min-h-screen grid place-items-center font-roboto bg-darkthemetext">
       <form
         onSubmit={handleSubmit}
         className="w-full sm:w-4/6 lg:w-1/2 xl:w-1/2 shadow-sm rounded-lg mx-auto mt-11 p-8"

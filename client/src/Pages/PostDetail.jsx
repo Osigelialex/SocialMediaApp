@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import API_BASE_URL from "../apiConfig";
 import CircularProgress from "@mui/material/CircularProgress";
-import FollowSuggestion from "../Components/FollowSuggestion";
+import Aside from "../Components/Aside";
 import Post from "../Components/Post";
 import CommentCard from "../Components/commentCard";
 import { MdOutlineDelete } from "react-icons/md";
@@ -16,7 +16,6 @@ const PostDetail = () => {
   const [loading, setLoading] = useState(true);
   const [textarea, setTextarea] = useState("");
   const [commentCreated, setCommentCreated] = useState(false);
-  const [suggestion, setSuggestions] = useState([]);
   const loggedInUser = JSON.parse(localStorage.getItem("userData"));
   const { postId } = useParams();
 
@@ -56,25 +55,6 @@ const PostDetail = () => {
     }
   };
 
-  const fetchSuggestions = async () => {
-    const userData = JSON.parse(localStorage.getItem("userData"));
-    const accessToken = localStorage.getItem("accessToken");
-    const baseURL = `${API_BASE_URL}/users/${userData._id}/suggestions`;
-
-    const requestOptions = {
-      method: "GET",
-      credentials: "include",
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    };
-
-    const responseData = await MakeRequest(baseURL, requestOptions);
-    if (responseData) {
-      setSuggestions(responseData.suggestions);
-    }
-  };
-
   const deleteContents = () => {
     setTextarea("");
   }
@@ -101,7 +81,6 @@ const PostDetail = () => {
 
   useEffect(() => {
     getPostData()
-      .then(() => fetchSuggestions())
       .then(() => getPostComments())
       .then(() => setLoading(false));
   }, []);
@@ -169,7 +148,7 @@ const PostDetail = () => {
             ))}
         </div>
       </div>
-      <FollowSuggestion suggestions={suggestion} />
+      <Aside />
     </div>
   );
 };

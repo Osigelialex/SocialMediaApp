@@ -89,7 +89,7 @@ const Post = ({
 
   return (
     <div
-      className="w-full rounded-xl mb-2 p-2 min-h-fit my-3 bg-darkBg text-darkthemetext cursor-pointer hover:border-slate-100"
+      className="w-full rounded-xl mb-2 p-2 min-h-fit my-3 bg-darkBg text-darkthemetext cursor-pointer"
       onClick={(e) => handleClick(e)}
     >
       {/* error messages for like errors */}

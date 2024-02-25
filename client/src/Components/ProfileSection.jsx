@@ -6,10 +6,11 @@ import DialogContent from "@mui/material/DialogContent";
 import Button from "@mui/material/Button";
 import { LuImagePlus } from "react-icons/lu";
 import DialogTitle from "@mui/material/DialogTitle";
-import { IoPencil } from "react-icons/io5";
 import { Avatar } from "@mui/material";
 import { useState } from "react";
 import MakeRequest from "../utils/MakeRequest";
+import API_BASE_URL from "../apiConfig";
+import updateUser from "../utils/updateUser";
 
 const ProfileSection = ({
   userId,
@@ -20,12 +21,17 @@ const ProfileSection = ({
   profilePicture,
   bio,
   posts,
-  
 }) => {
   const [open, setOpen] = useState(false);
   const [newDisplayname, setNewDisplayname] = useState(displayname);
   const [newBio, setNewBio] = useState(bio);
+  const [followerCount, setFollowerCount] = useState(followers.length);
   const [newProfilePicture, setNewProfilePicture] = useState(null);
+  const loggedInUser = JSON.parse(localStorage.getItem("userData"));
+  const isLoggedInUsersProfile = loggedInUser._id === userId;
+  const [followed, setFollowed] = useState(
+    followers.includes(loggedInUser._id)
+  );
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -33,6 +39,42 @@ const ProfileSection = ({
 
   const handleClose = () => {
     setOpen(false);
+  };
+
+  const followUser = async () => {
+    const url = `${API_BASE_URL}/users/${userId}/follow`;
+    const token = localStorage.getItem("accessToken");
+    const requestOptions = {
+      method: "POST",
+      credential: "include",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    const data = await MakeRequest(url, requestOptions);
+    if (data.status === "success") {
+      setFollowed(true);
+      setFollowerCount(followerCount + 1);
+      updateUser();
+    }
+  };
+
+  const unfollowUser = async () => {
+    const url = `${API_BASE_URL}/users/${userId}/unfollow`;
+    const token = localStorage.getItem("accessToken");
+    const requestOptions = {
+      method: "DELETE",
+      credential: "include",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    const data = await MakeRequest(url, requestOptions);
+    if (data.status === "success") {
+      setFollowed(false);
+      setFollowerCount(followerCount - 1);
+      updateUser();
+    }
   };
 
   return (
@@ -44,7 +86,7 @@ const ProfileSection = ({
           component: "form",
           onSubmit: async (event) => {
             event.preventDefault();
-            
+
             // create multipart form
             const formData = new FormData();
             formData.append("displayname", newDisplayname);
@@ -125,14 +167,25 @@ const ProfileSection = ({
         </DialogActions>
       </Dialog>
       <div className="text-center p-3 bg-darkBg text-darkthemetext rounded-md relative">
-        <span
-          className="absolute right-5 rounded-full p-3 cursor-pointer"
-          onClick={handleClickOpen}
-        >
-          <IoPencil />
-        </span>
-        <div className="flex flex-col items-center">
+        {isLoggedInUsersProfile ? (
+          <span
+            className="absolute right-5 rounded-full p-3 cursor-pointer"
+            onClick={handleClickOpen}
+          >
+            <Button variant="outlined">Edit Profile</Button>
+          </span>
+        ) : (
+          <span className="absolute right-5">
+            {followed ? (
+              <Button variant="outlined" onClick={unfollowUser}>Unfollow</Button>
+            ) : (
+              <Button variant="outlined" onClick={followUser}>Follow</Button>
+            )}
+          </span>
+        )}
+        <div className="flex flex-col items-start">
           <Avatar
+            sx={{ width: 60, height: 60 }}
             alt={displayname}
             src={
               profilePicture
@@ -140,20 +193,24 @@ const ProfileSection = ({
                 : "/no-profile-picture.jpg"
             }
           />
-          <p className="text-lg sm:text-2xl font-bold text-center">
+          <p className="text-lg sm:text-2xl font-bold text-center mt-2">
             {displayname}
           </p>
 
-          <p className="text-gray-500 text-sm sm:text-md">@{username}</p>
-          <div className="flex gap-3">
+          <p className="text-gray-500 text-sm sm:text-md mb-2">@{username}</p>
+          <div className="flex gap-3 my-2">
             <p className="text-md sm:text-lg font-bold">
-              {following} <span className="text-gray-500">Following</span>
+              {following.length} <span className="text-gray-500">Following</span>
             </p>
             <p className="text-md sm:text-lg font-bold">
-              {followers} <span className="text-gray-500">Followers</span>
+              {followerCount} <span className="text-gray-500">Followers</span>
             </p>
           </div>
-          {bio !== null && <p className="text-sm sm:text-md text-gray-500 w-2/3 my-4">{bio}</p>}
+          {bio !== null && (
+            <p className="text-sm sm:text-md text-darkthemetext font-bold w-2/3 my-4 text-left">
+              {bio}
+            </p>
+          )}
         </div>
       </div>
       <div>
@@ -168,7 +225,7 @@ const ProfileSection = ({
                 username={username}
                 content={post.content}
                 likedByCurrentUser={
-                  post.likedBy.hasOwnProperty(userId) || false
+                  post.likedBy.hasOwnProperty(loggedInUser._id) || false
                 }
                 likes={post.likes}
                 imageUrl={post.imageUrl}

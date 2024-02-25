@@ -1,15 +1,9 @@
-import { useState } from "react";
 import ProfilePicture from "./profilePicture";
 import API_BASE_URL from "../apiConfig";
 import MakeRequest from "../utils/MakeRequest";
 
-const userCard = ({ user }) => {
+const userCard = ({ user, onFollowed }) => {
   const userId = JSON.parse(localStorage.getItem("userData"))._id;
-  const [followed, setFollowed] = useState(user.followers.includes(userId));
-  const [unfollowed, setUnfollowed] = useState(
-    !user.followers.includes(userId)
-  );
-  console.log(followed);
 
   const followUser = async () => {
     const url = `${API_BASE_URL}/users/${user._id}/follow`;
@@ -23,8 +17,7 @@ const userCard = ({ user }) => {
     };
     const data = await MakeRequest(url, requestOptions);
     if (data.status === "success") {
-      setFollowed(true);
-      setUnfollowed(false);
+      onFollowed();
     }
   };
 
@@ -40,13 +33,15 @@ const userCard = ({ user }) => {
     };
     const data = await MakeRequest(url, requestOptions);
     if (data.status === "success") {
-      setUnfollowed(true);
-      setFollowed(false);
+      onFollowed();
     }
   };
 
   return (
-    <div className="bg-darkBg text-darkthemetext rounded-md p-2 my-1 flex justify-between shadow-lg">
+    <div
+      className="bg-darkBg text-darkthemetext rounded-md p-2 my-1 flex justify-between shadow-lg"
+      key={userId}
+    >
       <div className="flex items-center gap-3">
         <ProfilePicture
           profilePicture={user.profilePicture}
@@ -59,13 +54,12 @@ const userCard = ({ user }) => {
         </div>
       </div>
 
-      {followed && (
+      {user.followers.includes(userId)  ? (
         <button onClick={unfollowUser} className="text-blue-600">
           Unfollow
         </button>
-      )}
-      {unfollowed && (
-        <button onClick={followUser} className="text-blue-600">
+      ) : (
+        <button onClick={followUser} className="text-black bg-darkthemetext rounded-md p-1 font-bold">
           Follow
         </button>
       )}

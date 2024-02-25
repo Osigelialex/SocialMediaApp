@@ -119,8 +119,6 @@ export const deleteUser = asyncHandler(async (req, res) => {
 export const searchUser = asyncHandler(async (req, res) => {
   const query = req.query.query;
 
-  console.log(query);
-
   const [userFromDisplayname, userFromUsername] = await Promise.all([
     User.findOne({ displayname: query }).select("-password -__v"),
     User.findOne({ username: query }).select("-password -__v"),

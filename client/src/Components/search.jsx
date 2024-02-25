@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import API_BASE_URL from "../apiConfig";
 import MakeRequest from "../utils/MakeRequest";
 import CircularProgress from "@mui/material/CircularProgress";
-import UserCard from "./userCard";
+import ProfilePicture from "./profilePicture";
 
 const search = () => {
   const [search, setSearch] = useState("");
@@ -50,20 +50,7 @@ const search = () => {
   return (
     <div className="bg-darkBg rounded-xl p-4 mb-14 w-full text-darkthemetext">
       <div className="flex gap-3">
-        {/* <TextField
-          margin="dense"
-          id="search"
-          name="query"
-          label="Search for a user"
-          variant="outlined"
-          fullWidth
-          type="text"
-          value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-          }}
-        /> */}
-        <input 
+        <input
           type="text"
           name="query"
           value={search}
@@ -75,7 +62,23 @@ const search = () => {
       <div className="grid place-items-center my-3">
         {loading && <CircularProgress />}
       </div>
-      {searchResults && <UserCard user={searchResults} />}
+      {searchResults && (
+        <div
+          className="bg-darkBg text-darkthemetext rounded-md p-2 my-1 flex justify-between shadow-lg"
+        >
+          <div className="flex items-center gap-3">
+            <ProfilePicture
+              profilePicture={searchResults.profilePicture}
+              alt={searchResults.username}
+              userId={searchResults._id}
+            />
+            <div>
+              <p className="font-bold text-darkthemetext">{searchResults.displayname}</p>
+              <p className="text-gray-500">@{searchResults.username}</p>
+            </div>
+          </div>
+        </div>
+      )}
       {notFound && <p>No user found</p>}
     </div>
   );

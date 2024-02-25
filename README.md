@@ -1,6 +1,6 @@
 # Social Media App
 
-<img width="960" alt="Netlink" src="https://github.com/Osigelialex/SocialMediaApp/assets/97721950/ea20837e-6c90-4db8-8861-dac985ad2ef7">
+<img width="959" alt="Netlink-dark" src="https://github.com/Osigelialex/SocialMediaApp/assets/97721950/8f5ea911-eed3-4c08-8f28-3f863e177d88">
 
 This MERN stack social media application allows users to connect and share their thoughts, photos, and more. Below are the key features, prerequisites, and setup instructions for the application.
 
